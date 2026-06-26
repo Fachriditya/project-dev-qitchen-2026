@@ -12,13 +12,14 @@ return new class extends Migration
 
             $table->id('user_id');          
 
-            $table->string('user_name', 100);      
-            $table->string('user_email', 100)->unique();
+            $table->string('name', 100);      
+            $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();      
-            $table->string('user_password', 255)->nullable();     
+            $table->string('password', 255)->nullable();  
+            $table->string('phone', 20)->nullable(); 
             $table->string('google_id', 50)->nullable();   
             $table->string('otp', 6)->nullable();   
-            $table->enum('user_role', [
+            $table->enum('role', [
                 'admin',
                 'cashier',
                 'kitchen',

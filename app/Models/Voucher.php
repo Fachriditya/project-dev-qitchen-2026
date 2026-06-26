@@ -13,7 +13,9 @@ class Voucher extends Model
     protected $primaryKey = 'voucher_id';
 
     protected $fillable = [
-        'voucher_code', 
+        'voucher_name',
+        'voucher_code',
+        'voucher_description',
         'voucher_type', 
         'voucher_value', 
         'min_order', 

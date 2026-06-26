@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class IsKitchen
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (auth()->check() && auth()->user()->role === 'kitchen') {
+            return $next($request);
+        }
+        abort(403, 'Akses ditolak. Halaman ini khusus Kru Dapur.');
+    }
+}

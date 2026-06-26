@@ -12,7 +12,9 @@ return new class extends Migration
             
             $table->id('voucher_id');
 
+            $table->string('voucher_name', 100);
             $table->string('voucher_code', 50)->unique();
+            $table->text('voucher_description')->nullable();
             $table->enum('voucher_type', [
                 'percentage',
                 'fixed'

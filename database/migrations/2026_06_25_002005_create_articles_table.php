@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('article_title', 150);
             $table->string('article_slug', 150)->unique();
             $table->longText('article_content');
+            $table->enum('article_category', [
+                'News',
+                'Tips',
+                'Promo'
+            ])->default('News');
             $table->string('thumbnail', 255)->nullable(); 
             $table->boolean('is_published')->default(false);       
             $table->timestamp('published_at')->nullable();

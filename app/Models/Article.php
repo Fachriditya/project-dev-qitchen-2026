@@ -16,6 +16,7 @@ class Article extends Model
         'admin_id', 
         'article_title', 
         'article_slug', 
+        'article_category',
         'article_content', 
         'thumbnail', 
         'is_published', 

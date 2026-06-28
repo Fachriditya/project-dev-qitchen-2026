@@ -16,7 +16,6 @@ class Order extends Model
         'user_id', 
         'order_number', 
         'order_type', 
-        'table_number', 
         'order_status', 
         'order_subtotal', 
         'order_discount', 

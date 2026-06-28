@@ -25,10 +25,29 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+
+        // KITA PAKSA ARAHKAN LANGSUNG (Tanpa ->intended)
+        switch ($user->role) {
+            case 'super_admin':
+            case 'admin':
+                return redirect()->route('admin.dashboard'); // Berubah di sini
+                
+            case 'cashier':
+                return redirect()->route('cashier.transactions'); // Berubah di sini
+                
+            case 'kitchen':
+                return redirect()->route('kitchen.board'); // Berubah di sini
+                
+            case 'courier':
+                return redirect()->route('courier.offers'); // Berubah di sini
+                
+            case 'customer':
+            default:
+                return redirect()->route('home'); // Berubah di sini
+        }
     }
 
     /**

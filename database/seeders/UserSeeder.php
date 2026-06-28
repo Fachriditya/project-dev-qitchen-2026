@@ -15,7 +15,6 @@ class UserSeeder extends Seeder
         $password = Hash::make('password');
         $now = Carbon::now();
 
-        // Hanya 5 user utama sesuai spesifikasi
         $mainUsers = [
             [
                 'name' => 'Administrator',

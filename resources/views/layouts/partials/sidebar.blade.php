@@ -16,35 +16,59 @@
         
         <!-- ================= MENU ADMIN ================= -->
         @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
-            <!-- Tombol Active (Dashboard) -->
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 bg-orange-500 text-white rounded-xl font-bold transition">
+            
+            <!-- Dashboard -->
+            <a href="{{ route('admin.dashboard') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-grid-1x2 mr-3 text-lg"></i> Dashboard
             </a>
             
-            <!-- Tombol Inactive -->
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+            <!-- Menu -->
+            <a href="{{ route('admin.menus.index') }}" 
+                class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.menus.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-journal-text mr-3 text-lg"></i> Menu
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+            
+            <!-- Categories -->
+            <a href="{{ route('admin.categories.index') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-tags mr-3 text-lg"></i> Categories
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+            
+            <!-- Users -->
+            <a href="{{ route('admin.users.index') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-people mr-3 text-lg"></i> Users
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+            
+            <!-- Vouchers -->
+            <a href="{{ route('admin.vouchers.index') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.vouchers.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-ticket-perforated mr-3 text-lg"></i> Vouchers
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+            
+            <!-- Transactions -->
+            <a href="{{ route('admin.transactions.index') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.transactions.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-receipt mr-3 text-lg"></i> Transactions
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+            
+            <!-- Deliveries -->
+            <a href="{{ route('admin.deliveries.index') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.deliveries.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-truck mr-3 text-lg"></i> Deliveries
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+            
+            <!-- Reports -->
+            <a href="{{ route('admin.reports.index') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.reports.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-bar-chart-line mr-3 text-lg"></i> Reports
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
-                <i class="bi bi-newspaper mr-3 text-lg"></i> Articles
+            
+            <!-- Articles -->
+            <a href="{{ route('admin.articles.index') }}" 
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('admin.articles.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
+                <i class="bi bi-journal-text mr-3 text-lg"></i> Articles
             </a>
         @endif
 

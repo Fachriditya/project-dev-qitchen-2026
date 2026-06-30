@@ -7,8 +7,16 @@ use App\Http\Controllers\Public\PageController;
 use App\Http\Controllers\Public\ArticleController as PublicArticleController;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VoucherController;
+use App\Http\Controllers\Admin\TransactionController as AdminTransaction;
+use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ArticleController;
 
-use App\Http\Controllers\Cashier\TransactionController;
+use App\Http\Controllers\Cashier\TransactionController as CashierTransaction;
 
 use App\Http\Controllers\Kitchen\KitchenBoardController;
 
@@ -33,8 +41,16 @@ Route::get('/articles/{slug}', [PublicArticleController::class, 'show'])->name('
 
 Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+    Route::resource('admin/menus', MenuController::class)->names('admin.menus');
+    Route::resource('admin/categories', CategoryController::class)->names('admin.categories');
+    Route::resource('admin/users', UserController::class)->names('admin.users');
+    Route::resource('admin/vouchers', VoucherController::class)->names('admin.vouchers');
+    Route::resource('admin/transactions', AdminTransaction::class)->only(['index', 'show'])->names('admin.transactions');
+    Route::resource('admin/deliveries', DeliveryController::class)->only(['index', 'show'])->names('admin.deliveries');
+    Route::get('admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
+    Route::resource('articles', ArticleController::class)->names('admin.articles');
     
-    // Nanti rute AdminController lainnya (Menu, Article, dll) akan bersarang di sini
+
 });
 
 // ==========================================

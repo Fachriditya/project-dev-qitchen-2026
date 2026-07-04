@@ -18,8 +18,10 @@
                 <span class="text-gray-300">|</span>
                 <span>{{ $endDate }}</span>
             </div>
-            <button class="bg-orange-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-600 transition shadow-md">
-                Export PDF
+            <button>
+                <a href="{{ route('admin.reports.export-pdf') }}" class="bg-orange-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-600 transition shadow-md inline-block">
+                    <i class="bi bi-file-earmark-pdf-fill mr-2"></i> Export PDF
+                </a>
             </button>
         </div>
     </div>

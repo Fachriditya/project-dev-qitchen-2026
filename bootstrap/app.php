@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'isCourier' => \App\Http\Middleware\IsCourier::class,
             'isCustomer' => \App\Http\Middleware\IsCustomer::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'webhook/midtrans'
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

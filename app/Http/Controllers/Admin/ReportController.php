@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 class ReportController extends Controller
@@ -115,4 +116,53 @@ class ReportController extends Controller
             'salesData', 'categoryReport', 'topSellingItems', 'paymentMethods', 'metrics'
         ));
     }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. RENTANG TANGGAL
+        $startDate = Carbon::now()->startOfMonth()->format('M j, Y'); 
+        $endDate = Carbon::now()->endOfMonth()->format('M j, Y');   
+
+        // 2. HITUNG METRIK UTAMA
+        $totalRevenue = Order::whereIn('order_status', ['paid', 'completed'])->sum('order_total');
+        $totalOrders = Order::count();
+        $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+
+        // 3. REVENUE BY CATEGORY
+        $categoryData = OrderItem::join('menus', 'order_items.menu_id', '=', 'menus.menu_id')
+            ->join('categories', 'menus.category_id', '=', 'categories.category_id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->whereIn('orders.order_status', ['paid', 'completed'])
+            ->select('categories.category_name', DB::raw('SUM(order_items.item_subtotal) as total_revenue'))
+            ->groupBy('categories.category_name')
+            ->get();
+
+        // 4. TOP SELLING ITEMS
+        $topSellingItems = OrderItem::join('menus', 'order_items.menu_id', '=', 'menus.menu_id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->whereIn('orders.order_status', ['paid', 'completed'])
+            ->select('menus.menu_name as name', DB::raw('SUM(order_items.quantity) as sold'), DB::raw('SUM(order_items.item_subtotal) as revenue'))
+            ->groupBy('menus.menu_id', 'menus.menu_name')
+            ->orderByDesc('sold')
+            ->limit(10) // Kita ambil top 10 untuk PDF biar lebih lengkap
+            ->get();
+
+        // 5. PAYMENT METHODS
+        $paymentMethods = Payment::select('payment_method', DB::raw('COUNT(*) as count'))
+            ->groupBy('payment_method')
+            ->get();
+
+        // Me-load view khusus PDF dan mengirim data
+        $pdf = Pdf::loadView('admin.reports.pdf', compact(
+            'startDate', 'endDate', 'totalRevenue', 'totalOrders', 'avgOrderValue', 
+            'categoryData', 'topSellingItems', 'paymentMethods'
+        ));
+
+        // Mengatur ukuran kertas ke A4 (Portrait)
+        $pdf->setPaper('a4', 'portrait');
+
+        // Men-download file PDF dengan nama dinamis
+        return $pdf->download('Qitchen-Report-' . Carbon::now()->format('Y-m-d') . '.pdf');
+    }
+    
 }

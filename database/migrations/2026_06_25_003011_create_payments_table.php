@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('payment_amount', 12, 2);
             $table->enum('payment_method', [
                 'qris',
+                'va',
                 'cash'
             ]);
             $table->enum('payment_status', [

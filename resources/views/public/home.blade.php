@@ -19,7 +19,7 @@
             </p>
             
             <div class="mt-8 flex flex-wrap items-center gap-4">
-                <a href="#menu" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold transition shadow-lg shadow-orange-200 flex items-center gap-2">
+                <a href="{{ route('menu.index') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold transition shadow-lg shadow-orange-200 flex items-center gap-2">
                     Order Now 
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </a>
@@ -61,7 +61,7 @@
                 <h2 class="mt-2 text-4xl font-extrabold text-gray-900">Crowd favourites</h2>
                 <p class="mt-2 text-gray-500">The dishes our regulars can't stop ordering.</p>
             </div>
-            <a href="#menu" class="hidden md:flex font-bold text-gray-900 hover:text-orange-500 items-center gap-1 transition">
+            <a href="{{ route('menu.index') }}" class="hidden md:flex font-bold text-gray-900 hover:text-orange-500 items-center gap-1 transition">
                 View full menu &rarr;
             </a>
         </div>
@@ -69,69 +69,46 @@
         <!-- Grid Menu -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             
-            <!-- Card 1 -->
-            <div class="group cursor-pointer">
-                <div class="relative h-64 rounded-3xl overflow-hidden mb-4 bg-gray-50 border border-gray-100">
-                    <span class="absolute top-4 left-4 z-10 bg-white px-3 py-1 rounded-full text-xs font-bold text-orange-500 shadow-sm">Best Seller</span>
-                    <img src="https://placehold.co/600x400/png?text=Nasi+Goreng+Special" alt="Nasi Goreng Special" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="flex justify-between items-start mb-1">
-                    <h3 class="font-extrabold text-lg text-gray-900 line-clamp-1" title="Nasi Goreng Special">Nasi Goreng Special</h3>
-                </div>
-                <p class="text-sm text-gray-500 line-clamp-2 mb-4">Dolorum mollitia voluptates porro ducimus consequatur inventore architecto et quisquam veritatis laborum delectus alias.</p>
-                <div class="flex justify-between items-center">
-                    <p class="font-extrabold text-lg text-gray-900">Rp 34.000</p>
-                    <a href="#menu" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full font-bold text-sm transition">Buy Now</a>
-                </div>
-            </div>
+            @foreach($featuredMenus as $index => $menu)
+            <!-- Card -->
+            <div class="group cursor-pointer flex flex-col h-full">
+                <!-- Wadah Gambar & Placeholder -->
+                <div class="relative h-64 rounded-3xl overflow-hidden mb-4 bg-gray-50 border border-gray-100 flex items-center justify-center text-center">
+                    
+                    <!-- Badge Best Seller (Hanya muncul untuk menu urutan pertama) -->
+                    @if($index === 0)
+                        <span class="absolute top-4 left-4 z-20 bg-white px-3 py-1 rounded-full text-xs font-bold text-orange-500 shadow-sm">🏆 Top #1</span>
+                    @endif
 
-            <!-- Card 2 -->
-            <div class="group cursor-pointer">
-                <div class="relative h-64 rounded-3xl overflow-hidden mb-4 bg-gray-50 border border-gray-100">
-                    <span class="absolute top-4 left-4 z-10 bg-white px-3 py-1 rounded-full text-xs font-bold text-red-500 shadow-sm">Spicy</span>
-                    <img src="https://placehold.co/600x400/png?text=Beef+Rendang" alt="Beef Rendang" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="flex justify-between items-start mb-1">
-                    <h3 class="font-extrabold text-lg text-gray-900 line-clamp-1" title="Beef Rendang">Beef Rendang</h3>
-                </div>
-                <p class="text-sm text-gray-500 line-clamp-2 mb-4">Qui modi sit non et qui rerum in et porro. quisquam nulla et assumenda</p>
-                <div class="flex justify-between items-center">
-                    <p class="font-extrabold text-lg text-gray-900">Rp 28.000</p>
-                    <a href="#menu" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full font-bold text-sm transition">Buy Now</a>
-                </div>
-            </div>
+                    <!-- TEKS PLACEHOLDER (Berada di lapisan bawah / z-0) -->
+                    <div class="absolute inset-0 z-0 flex items-center justify-center p-4">
+                        <span class="font-bold text-gray-400 text-lg uppercase tracking-wider">{{ $menu->menu_name }}</span>
+                    </div>
 
-            <!-- Card 3 -->
-            <div class="group cursor-pointer">
-                <div class="relative h-64 rounded-3xl overflow-hidden mb-4 bg-gray-50 border border-gray-100">
-                    <span class="absolute top-4 left-4 z-10 bg-white px-3 py-1 rounded-full text-xs font-bold text-green-600 shadow-sm">Authentic</span>
-                    <img src="https://placehold.co/600x400/png?text=Chicken+Satay" alt="Chicken Satay" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <!-- GAMBAR UTAMA (Berada di lapisan atas / z-10) -->
+                    <!-- Trik Zero to Hero: 'onerror' akan menghilangkan tag img ini jika gambar gagal dimuat, sehingga teks placeholder di bawahnya akan terlihat! -->
+                    <img src="{{ asset('storage/' . $menu->menu_image) }}" 
+                         alt="{{ $menu->menu_name }}" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition duration-500 relative z-10"
+                         onerror="this.style.display='none'">
                 </div>
+                
+                <!-- Info Konten -->
                 <div class="flex justify-between items-start mb-1">
-                    <h3 class="font-extrabold text-lg text-gray-900 line-clamp-1" title="Chicken Satay">Chicken Satay</h3>
+                    <h3 class="font-extrabold text-lg text-gray-900 line-clamp-1" title="{{ $menu->menu_name }}">{{ $menu->menu_name }}</h3>
                 </div>
-                <p class="text-sm text-gray-500 line-clamp-2 mb-4">Sit commodi porro quisquam nulla et assumenda sunt maxime ut repellendus.</p>
-                <div class="flex justify-between items-center">
-                    <p class="font-extrabold text-lg text-gray-900">Rp 39.000</p>
-                    <a href="#menu" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full font-bold text-sm transition">Buy Now</a>
+                
+                <p class="text-sm text-gray-500 line-clamp-2 mb-4 flex-grow">{{ $menu->menu_description ?? 'Sajian istimewa dari dapur Qitchen yang disiapkan dengan bahan berkualitas.' }}</p>
+                
+                <!-- Harga & Tombol -->
+                <div class="flex justify-between items-center mt-auto">
+                    <p class="font-extrabold text-lg text-gray-900">Rp {{ number_format($menu->menu_price, 0, ',', '.') }}</p>
+                    <a href="{{ route('menu.index') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full font-bold text-sm transition">Buy Now</a>
                 </div>
             </div>
-
-            <!-- Card 4 -->
-            <div class="group cursor-pointer">
-                <div class="relative h-64 rounded-3xl overflow-hidden mb-4 bg-gray-50 border border-gray-100">
-                    <span class="absolute top-4 left-4 z-10 bg-white px-3 py-1 rounded-full text-xs font-bold text-blue-500 shadow-sm">Chef's Pick</span>
-                    <img src="https://placehold.co/600x400/png?text=Opor+Ayam" alt="Opor Ayam" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="flex justify-between items-start mb-1">
-                    <h3 class="font-extrabold text-lg text-gray-900 line-clamp-1" title="Opor Ayam">Opor Ayam</h3>
-                </div>
-                <p class="text-sm text-gray-500 line-clamp-2 mb-4">Corporis dicta earum sapiente ducimus corporis voluptate maxime blanditiis deleniti ut nam veniam est.</p>
-                <div class="flex justify-between items-center">
-                    <p class="font-extrabold text-lg text-gray-900">Rp 41.000</p>
-                    <a href="#menu" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full font-bold text-sm transition">Buy Now</a>
-                </div>
-            </div>
+            @endforeach
+            
+        </div>
             
         </div>
     </section>
@@ -209,7 +186,7 @@
                 </div>
             </div>
 
-            <a href="#menu" class="inline-block mt-10 bg-orange-500 hover:bg-orange-600 text-white px-8 py-3.5 rounded-full font-bold transition shadow-lg shadow-orange-200">Start your order &rarr;</a>
+            <a href="{{ route('menu.index') }}" class="inline-block mt-10 bg-orange-500 hover:bg-orange-600 text-white px-8 py-3.5 rounded-full font-bold transition shadow-lg shadow-orange-200">Start your order &rarr;</a>
         </div>
     </section>
 
@@ -234,7 +211,7 @@
 
                 <div class="mt-10 flex gap-4">
                     <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3.5 rounded-full font-bold transition">Join free</a>
-                    <a href="#menu" class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3.5 rounded-full font-bold transition">Browse menu</a>
+                    <a href="{{ route('menu.index') }}" class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3.5 rounded-full font-bold transition">Browse menu</a>
                 </div>
             </div>
         </div>

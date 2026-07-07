@@ -28,7 +28,10 @@ use App\Http\Controllers\Kitchen\KitchenBoardController;
 
 use App\Http\Controllers\Courier\DeliveryOfferController;
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Customer\ProfileController;
+use App\Http\Controllers\Customer\OrderController;
+use App\Http\Controllers\Customer\VoucherController as CustomerVoucherController;
+use App\Http\Controllers\Customer\ReferralController;
 
 // ==========================================
 // PUBLIC ROUTING
@@ -102,9 +105,13 @@ Route::middleware(['auth', 'isCourier'])->prefix('courier')->group(function () {
 // ==========================================
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::get('/profile/history', [OrderController::class, 'index'])->name('profile.history');
+    Route::get('/profile/vouchers', [CustomerVoucherController::class, 'index'])->name('profile.vouchers');
+    Route::get('/profile/referral', [ReferralController::class, 'index'])->name('profile.referral');
+});;
 
 require __DIR__.'/auth.php';

@@ -60,24 +60,16 @@
 
         <!-- JIKA MEMBER (Sudah Login) -->
         @auth
-            <div class="flex items-center gap-3 border-l border-gray-200 pl-5 cursor-pointer group relative">
-                <!-- Avatar Profil (Inisial Nama) -->
-                <div class="w-9 h-9 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
+            <a href="{{ route('profile.index') }}" class="flex items-center gap-3 border-l border-gray-200 pl-5 text-gray-700 hover:text-orange-500 transition cursor-pointer group">
+            @if(Auth::user()->profile_picture)
+                <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile Picture" class="w-16 h-16 rounded-full object-cover shadow-sm shrink-0 border border-gray-200">
+            @else
+                <div class="w-16 h-16 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-sm uppercase shrink-0">
                     {{ substr(Auth::user()->name, 0, 2) }}
                 </div>
-                <span class="font-bold text-sm text-gray-700">{{ Auth::user()->name }}</span>
-                <i class="bi bi-chevron-down text-xs text-gray-400"></i>
-                
-                <!-- Dropdown Logout -->
-                <div class="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full text-left px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition">
-                            <i class="bi bi-box-arrow-right mr-2"></i> Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
+            @endif
+                <span class="font-bold text-sm transition-colors">{{ Auth::user()->name }}</span>
+            </a>
         @endauth
         
     </div>

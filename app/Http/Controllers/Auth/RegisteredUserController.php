@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail;
 
 class RegisteredUserController extends Controller
 {
@@ -28,24 +31,44 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
         ]);
 
+        // 1. LOGIKA REFERRAL: Cari ID Pengajak berdasarkan kode yang diketik
+        $referrerId = null;
+        if ($request->filled('referral_code')) {
+            // Cari user yang punya kode tersebut di database
+            $referrer = User::where('referral_code', $request->referral_code)->first();
+            
+            if ($referrer) {
+                // Ambil ID-nya! (Ganti 'user_id' jadi 'id' kalau primary key-mu adalah id)
+                $referrerId = $referrer->user_id; 
+            }
+        }
+
+        // 2. Generate OTP
+        $otpCode = sprintf("%06d", mt_rand(1, 999999));
+
+        // 3. Buat User Baru
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'role' => 'customer',
+            'otp' => $otpCode,
+            'referred_by' => $referrerId, 
         ]);
 
-        event(new Registered($user));
+        // 4. Kirim Email OTP
+        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\OtpMail($otpCode));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // 5. Simpan session dan arahkan
+        $request->session()->put('otp_email', $user->email);
+        return redirect()->route('otp.show');
     }
 }

@@ -79,25 +79,28 @@
         <!-- KOLOM KIRI: SIDEBAR -->
         <div class="w-full md:w-64 shrink-0 flex flex-col gap-2">
             
-            <!-- Menu Aktif (Profile) -->
+            <!-- Menu Aktif (Profile) - Semua Role Bisa Lihat -->
             <a href="{{ route('profile.index') }}" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold bg-orange-500 text-white shadow-md transition">
                 <i class="bi bi-person text-lg"></i> Profile
             </a>
             
-            <!-- Menu Lain -->
-            <a href="{{ route('profile.history') }}" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
-                <i class="bi bi-receipt text-lg"></i> Order History
-            </a>
-            
-            <a href="{{ route('profile.vouchers') }}" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
-                <i class="bi bi-ticket-perforated text-lg"></i> My Vouchers
-            </a>
-            
-            <a href="{{ route('profile.referral') }}" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
-                <i class="bi bi-gift text-lg"></i> Referral
-            </a>
+            <!-- 🌟 ZERO TO HERO: Tampilkan menu di bawah HANYA JIKA role-nya customer -->
+            @if(Auth::user()->role === 'customer' || Auth::user()->role === 'user' || empty(Auth::user()->role))
+                <!-- Menu Lain -->
+                <a href="{{ route('profile.history') }}" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
+                    <i class="bi bi-receipt text-lg"></i> Order History
+                </a>
+                
+                <a href="{{ route('profile.vouchers') }}" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
+                    <i class="bi bi-ticket-perforated text-lg"></i> My Vouchers
+                </a>
+                
+                <a href="{{ route('profile.referral') }}" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
+                    <i class="bi bi-gift text-lg"></i> Referral
+                </a>
+            @endif
 
-            <!-- Pemisah & Logout -->
+            <!-- Pemisah & Logout - Semua Role Bisa Lihat -->
             <div class="w-full h-px bg-gray-100 my-2"></div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -106,7 +109,7 @@
                 </button>
             </form>
         </div>
-
+        
         <!-- KOLOM KANAN: FORM -->
         <div class="w-full flex-grow flex flex-col gap-6">
             

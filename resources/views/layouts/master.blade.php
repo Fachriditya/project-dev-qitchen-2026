@@ -26,7 +26,7 @@
             </div>
             
             <!-- Bagian Profil yang bisa diklik -->
-            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 cursor-pointer hover:opacity-75 transition duration-200">
+            <a href="{{ route('profile.index') }}" class="flex items-center gap-3 cursor-pointer hover:opacity-75 transition duration-200">
                 <div class="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold shadow-sm overflow-hidden">
                     @if(Auth::user()->profile_picture)
                         <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Photo" class="w-full h-full object-cover">

@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Referral;
+use App\Models\User;  // 🌟 Ganti Referral menjadi User
+use App\Models\Order; // 🌟 Tambahkan Order
 
 class ReferralController extends Controller
 {
@@ -13,26 +14,37 @@ class ReferralController extends Controller
     {
         $user = Auth::user();
 
+        // (Sesuaikan kalau Primary Key di tabel users-mu adalah 'id' atau 'user_id')
+        $myId = $user->user_id ?? $user->id; 
+
         // 1. Total order untuk konsistensi header
+        // (Pastikan kamu sudah membuat relasi orders() di dalam Model User)
         $totalOrders = $user->orders()->count();
 
-        // 2. Statistik Referral (Menggantikan sistem Poin)
-        // Jumlah teman yang berhasil daftar pakai kode user ini
-        $totalJoined = Referral::where('referrer_id', $user->user_id)->count();
+        // 2. Statistik Referral (Menggunakan kolom referred_by di tabel users)
         
-        // Jumlah referral yang sudah membuahkan hasil (diberi voucher)
-        $vouchersEarned = Referral::where('referrer_id', $user->user_id)
-                                  ->whereNotNull('rewarded_at')
-                                  ->count();
+        // A. Jumlah teman yang berhasil daftar pakai kode user ini
+        $totalJoined = User::where('referred_by', $myId)->count();
+        
+        // B. Ambil daftar seluruh ID teman yang diajak
+        $referredUserIds = User::where('referred_by', $myId)->pluck('user_id'); // Ganti ke 'id' jika pakai id
+        
+        // C. Jumlah referral yang sudah membuahkan hasil (temannya sudah belanja & pesanan completed)
+        $vouchersEarned = Order::whereIn('user_id', $referredUserIds)
+                               ->where('order_status', 'completed')
+                               ->distinct('user_id')
+                               ->count('user_id');
                                   
-        // Jumlah teman yang sudah daftar tapi belum transaksi (belum dapat reward)
-        $pendingRewards = Referral::where('referrer_id', $user->user_id)
-                                  ->whereNull('rewarded_at')
-                                  ->count();
+        // D. Jumlah teman yang sudah daftar tapi belum transaksi
+        $pendingRewards = $totalJoined - $vouchersEarned;
+        if ($pendingRewards < 0) {
+            $pendingRewards = 0; // Failsafe agar tidak minus
+        }
 
-        // Tingkat Keberhasilan (Success Rate)
+        // 3. Tingkat Keberhasilan (Success Rate)
         $successRate = $totalJoined > 0 ? round(($vouchersEarned / $totalJoined) * 100) : 0;
 
+        // 🌟 Pastikan nama folder view-mu benar: 'profile.referral.index' atau 'profile.referral'
         return view('profile.referral.index', compact(
             'user', 
             'totalOrders', 

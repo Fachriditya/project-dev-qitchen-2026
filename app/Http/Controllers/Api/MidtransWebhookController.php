@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\User;         // 🌟 Panggil model User
+use App\Models\Voucher;      // 🌟 Panggil model Voucher
+use App\Models\UserVoucher;  // 🌟 Panggil model UserVoucher
 use Illuminate\Support\Facades\Log;
 
 class MidtransWebhookController extends Controller
@@ -24,18 +27,76 @@ class MidtransWebhookController extends Controller
             return response()->json(['message' => 'Invalid Signature'], 403);
         }
 
-        // 4. Cari Order
-        $order = Order::where('order_number', $request->order_id)->first();
+        // 4. MENCARI ORDER (🌟 ZERO TO HERO BUG FIX)
+        // Midtrans mengirim order_id bentuknya "QTC-123456-1720500000"
+        // Kita potong timestamp di belakangnya untuk mendapatkan nomor nota asli
+        $realOrderNumber = substr($request->order_id, 0, strrpos($request->order_id, '-'));
+
+        $order = Order::where('order_number', $realOrderNumber)->first();
 
         if (!$order) {
             return response()->json(['message' => 'Order Not Found'], 404);
         }
 
-        // 5. Update Status
+        // 5. UPDATE STATUS
         if ($request->transaction_status == 'settlement' || $request->transaction_status == 'capture') {
+            
+            // Cegah double-process jika Midtrans mengirim webhook berkali-kali
+            if ($order->order_status == 'paid') {
+                return response()->json(['message' => 'Order already processed']);
+            }
+
+            // Update status tabel order
             $order->update(['order_status' => 'paid']);
-            Log::info("Webhook Success: Order " . $request->order_id . " verified and set to PAID.");
-            return response()->json(['message' => 'Webhook Processed']);
+            
+            // Update status tabel payment
+            Payment::where('order_id', $order->order_id ?? $order->id)
+                   ->update(['payment_status' => 'paid']);
+
+            Log::info("Webhook Success: Order " . $realOrderNumber . " verified and set to PAID.");
+
+            // ====================================================
+            // 🌟 MESIN REWARD REFERRAL OTOMATIS
+            // ====================================================
+            
+            // Pastikan pembelinya login (bukan Guest)
+            if ($order->user_id != null) {
+                
+                // Cari data pembeli (The "Cindy")
+                $customer = User::find($order->user_id);
+
+                // Cek 1: Apakah pembeli punya "Pengajak/Mentor" (The "Shima")?
+                if ($customer && $customer->referred_by != null) {
+                    
+                    // Cek 2: Hitung jumlah pesanan lunas si pembeli
+                    $paidOrdersCount = Order::where('user_id', $customer->user_id ?? $customer->id)
+                                            ->where('order_status', 'paid')
+                                            ->count();
+
+                    // Berikan hadiah HANYA saat pesanan lunas yang PERTAMA
+                    if ($paidOrdersCount == 1) {
+                        
+                        // Cek 3: Cari Master Voucher khusus Referral
+                        $masterVoucher = Voucher::where('voucher_code', 'REF-BONUS')
+                                                ->where('is_active', true)
+                                                ->first();
+
+                        if ($masterVoucher) {
+                            // CETAK VOUCHER & MASUKKAN KE DOMPET PENGAJAK! 🔥
+                            UserVoucher::create([
+                                'user_id' => $customer->referred_by, // ID si Pengajak (Shima)
+                                'voucher_id' => $masterVoucher->voucher_id ?? $masterVoucher->id,
+                                'is_used' => false
+                            ]);
+                            
+                            Log::info("Referral Reward: Voucher REF-BONUS diberikan ke User ID " . $customer->referred_by);
+                        }
+                    }
+                }
+            }
+            // ====================================================
+
+            return response()->json(['message' => 'Webhook Processed & Rewards Distributed']);
         }
 
         return response()->json(['message' => 'Transaction status ignored']);

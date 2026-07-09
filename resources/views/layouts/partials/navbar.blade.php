@@ -60,7 +60,24 @@
 
         <!-- JIKA MEMBER (Sudah Login) -->
         @auth
-            <a href="{{ route('profile.index') }}" class="flex items-center gap-3 border-l border-gray-200 pl-5 text-gray-700 hover:text-orange-500 transition cursor-pointer group">
+            <!-- 🌟 LOGIKA PINTU PINTAR DIMULAI DI SINI -->
+            @php
+                $dashboardRoute = route('profile.index'); // Default untuk Customer
+                
+                if (Auth::user()->role == 'super_admin' || Auth::user()->role == 'admin') {
+                    // Pastikan route admin.dashboard sudah ada di web.php kamu
+                    $dashboardRoute = route('admin.dashboard'); 
+                } elseif (Auth::user()->role == 'cashier') {
+                    $dashboardRoute = route('cashier.transactions.index');
+                } elseif (Auth::user()->role == 'kitchen') {
+                    $dashboardRoute = route('kitchen.board');
+                } elseif (Auth::user()->role == 'courier') {
+                    $dashboardRoute = route('courier.offers');
+                }
+            @endphp
+
+            <!-- href-nya diganti memanggil variabel $dashboardRoute -->
+            <a href="{{ $dashboardRoute }}" class="flex items-center gap-3 border-l border-gray-200 pl-5 text-gray-700 hover:text-orange-500 transition cursor-pointer group">
             @if(Auth::user()->profile_picture)
                 <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile Picture" class="w-16 h-16 rounded-full object-cover shadow-sm shrink-0 border border-gray-200">
             @else

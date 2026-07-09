@@ -1,10 +1,13 @@
 @extends('layouts.public')
 @section('title', 'Checkout - Qitchen')
 
+@section('head')
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 @section('content')
 <div class="max-w-7xl mx-auto px-6 py-12 bg-gray-50/50 min-h-screen">
 
-<!-- CCTV Error Penangkap Bug -->
     @if(session('error'))
         <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-8 shadow-sm">
             <p class="font-bold"><i class="bi bi-exclamation-triangle"></i> Oops, something went wrong!</p>
@@ -14,19 +17,15 @@
     
     <h1 class="text-3xl md:text-4xl font-black text-gray-900 mb-8">Checkout</h1>
 
-    <!-- FORM UTAMA (Nanti action-nya mengarah ke Midtrans) -->
-    <form action="{{ route('checkout.process') }}" method="POST" class="flex flex-col lg:flex-row gap-8">
-        @csrf
+    <div class="flex flex-col lg:flex-row gap-8">
         
-        <!-- KOLOM KIRI (Form Data) -->
-        <div class="lg:w-2/3 space-y-6">
+        <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="lg:w-2/3 space-y-6">
+            @csrf
             
-            <!-- 1. ORDER TYPE -->
             <div class="bg-white border border-gray-200 rounded-[1.5rem] p-6 md:p-8 shadow-sm">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Order type</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Dine In -->
                     <label class="cursor-pointer">
                         <input type="radio" name="order_type" value="dine_in" class="peer sr-only" checked onchange="toggleForms('dine_in')">
                         <div class="order-type-card rounded-2xl border-2 p-5 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 border-gray-200 hover:border-orange-200">
@@ -38,7 +37,6 @@
                         </div>
                     </label>
 
-                    <!-- Takeaway -->
                     <label class="cursor-pointer">
                         <input type="radio" name="order_type" value="takeaway" class="peer sr-only" onchange="toggleForms('takeaway')">
                         <div class="order-type-card rounded-2xl border-2 p-5 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 border-gray-200 hover:border-orange-200">
@@ -50,7 +48,6 @@
                         </div>
                     </label>
 
-                    <!-- Delivery -->
                     <label class="cursor-pointer">
                         <input type="radio" name="order_type" value="delivery" class="peer sr-only" onchange="toggleForms('delivery')">
                         <div class="order-type-card rounded-2xl border-2 p-5 transition-all peer-checked:border-orange-500 peer-checked:bg-orange-50 border-gray-200 hover:border-orange-200">
@@ -64,9 +61,6 @@
                 </div>
             </div>
 
-            <!-- 2. DYNAMIC FORMS -->
-
-            <!-- A. Dine In Form (Muncul secara default) -->
             <div id="form-dinein" class="bg-white border border-gray-200 rounded-[1.5rem] p-6 md:p-8 shadow-sm">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Dine In details</h2>
                 <div>
@@ -76,7 +70,6 @@
                 </div>
             </div>
             
-            <!-- B. Takeaway Form (Hidden by default) -->
             <div id="form-takeaway" class="hidden bg-white border border-gray-200 rounded-[1.5rem] p-6 md:p-8 shadow-sm">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Pickup details</h2>
                 <div class="space-y-4">
@@ -95,46 +88,44 @@
                 </div>
             </div>
 
-            <!-- B. Delivery Form (Hidden by default) -->
             <div id="form-delivery" class="hidden bg-white border border-gray-200 rounded-[1.5rem] p-6 md:p-8 shadow-sm">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Delivery address</h2>
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Recipient</label>
-                            <input type="text" name="delivery_name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition">
+                            <input type="text" name="delivery_name" value="{{ Auth::user()->name ?? '' }}" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                            <input type="text" name="delivery_phone" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition">
+                            <input type="text" name="delivery_phone" value="{{ Auth::user()->phone ?? '' }}" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Full address</label>
-                        <input type="text" name="delivery_address" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition">
+                        <input type="text" name="delivery_address" value="{{ Auth::user()->address ?? '' }}" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition">
                     </div>
                     
-                    <!-- Peta Dummy dari Figma -->
+                    <!-- 🌟 BAGIAN PETA INTERAKTIF ZERO TO HERO -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Pin your location</label>
-                        <div class="w-full h-40 bg-gray-200 rounded-xl overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover opacity-60">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <i class="bi bi-geo-alt-fill text-3xl text-orange-500 drop-shadow-md"></i>
-                                <span class="bg-white/90 px-3 py-1 rounded-full text-xs font-bold mt-2 shadow-sm">Drag to adjust pin</span>
-                            </div>
-                        </div>
+                        <p class="text-xs text-gray-500 mb-2">Drag the marker to pinpoint your exact delivery location.</p>
+                        
+                        <!-- Box Peta -->
+                        <div id="checkout-map" class="w-full h-48 md:h-64 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 shadow-inner z-0 relative"></div>
+                        
+                        <!-- Input tersembunyi untuk dikirim ke Controller -->
+                        <input type="hidden" name="latitude" id="input_latitude">
+                        <input type="hidden" name="longitude" id="input_longitude">
                     </div>
                 </div>
             </div>
 
-            <!-- ORDER NOTES (Catatan Keseluruhan) -->
             <div class="bg-white border border-gray-200 rounded-[1.5rem] p-6 md:p-8 shadow-sm">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Order Notes</h2>
                 <textarea name="order_notes" rows="2" placeholder="Any special requests for the restaurant or driver?" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition"></textarea>
             </div>
 
-            <!-- 3. ITEMS LIST (Compact) -->
             <div class="bg-white border border-gray-200 rounded-[1.5rem] p-6 md:p-8 shadow-sm">
                 <h2 class="text-lg font-bold text-gray-900 mb-6">Items ({{ count($cart) }})</h2>
                 
@@ -156,14 +147,11 @@
                 </div>
             </div>
             
-        </div>
-
-        <!-- KOLOM KANAN (Order Summary) -->
-        <div class="lg:w-1/3">
+        </form> <div class="lg:w-1/3 mt-8 lg:mt-0">
             <div class="bg-white border border-gray-200 rounded-[2rem] p-6 md:p-8 sticky top-28 shadow-sm">
                 <h3 class="text-xl font-black text-gray-900 mb-6">Order summary</h3>
 
-                <div class="space-y-4 mb-6 text-sm font-medium">
+                <div class="space-y-4 mb-4 text-sm font-medium">
                     <div class="flex justify-between text-gray-500">
                         <span>Subtotal</span>
                         <span class="text-gray-900">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
@@ -176,54 +164,87 @@
                         <span>Service fee</span>
                         <span class="text-gray-900">Rp {{ number_format($serviceFee, 0, ',', '.') }}</span>
                     </div>
+
+                    @if(isset($discount) && $discount > 0)
+                    <div class="flex justify-between text-green-500 font-bold pt-2">
+                        <span>Discount (Promo)</span>
+                        <span>- Rp {{ number_format($discount, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
                 </div>
 
-                <!-- Voucher Box -->
-                <div class="flex gap-2 mb-6">
-                    <input type="text" placeholder="Voucher code" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none transition">
-                    <button type="button" class="px-5 py-2 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-50 transition">Apply</button>
+                <div class="py-5 border-y border-gray-100 my-4">
+                    @if(session('applied_voucher'))
+                        <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                            <div>
+                                <span class="block text-xs text-green-500 font-bold uppercase">Promo Dipakai</span>
+                                <span class="block text-sm font-black text-green-700">{{ session('applied_voucher')['code'] }}</span>
+                            </div>
+                            <form action="{{ route('checkout.remove-voucher') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="text-red-500 hover:text-red-700 font-bold text-sm bg-transparent border-none">Batalkan</button>
+                            </form>
+                        </div>
+                    @else
+                        <h4 class="text-sm font-bold text-gray-900 mb-3">Punya Kode Voucher?</h4>
+                        <form action="{{ route('checkout.apply-voucher') }}" method="POST" class="flex gap-2">
+                            @csrf
+                            <input type="text" name="voucher_code" placeholder="MASUKKAN KODE PROMO" 
+                                class="w-full bg-gray-50 border-none rounded-xl px-4 py-3 text-sm text-gray-700 focus:ring-2 focus:ring-orange-500 uppercase">
+                            <button type="submit" class="bg-gray-900 hover:bg-black text-white px-5 py-3 rounded-xl text-sm font-bold transition shrink-0">
+                                Apply
+                            </button>
+                        </form>
+                    @endif
                 </div>
 
-                <div class="border-t border-gray-100 pt-6 mb-8">
+                <div class="pt-2 mb-8">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-900 font-bold text-lg">Total</span>
                         <span class="text-2xl font-black text-gray-900">Rp {{ number_format($total, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
-                <!-- Tombol Submit Form (Nanti ke Midtrans) -->
-                <button type="submit" class="w-full bg-orange-500 text-white py-4 rounded-2xl font-bold text-lg hover:bg-orange-600 transition shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2">
+                <button type="submit" form="checkout-form" class="block w-full bg-orange-500 text-white text-center py-4 rounded-2xl font-bold text-lg hover:bg-orange-600 transition shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2">
                     Continue to payment <i class="bi bi-arrow-right"></i>
                 </button>
+                
             </div>
         </div>
 
-    </form>
+    </div>
 </div>
+@endsection
 
-<!-- Script untuk Tab Order Type -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+    // ... Logika toggleForms() milikmu yang lama tetap biarkan di sini ...
     function toggleForms(type) {
-        // Ambil elemen form
-        const dineinForm = document.getElementById('form-dinein'); // Tangkap form baru
+        const dineinForm = document.getElementById('form-dinein');
         const takeawayForm = document.getElementById('form-takeaway');
         const deliveryForm = document.getElementById('form-delivery');
         
-        // Sembunyikan semua dulu
         dineinForm.classList.add('hidden');
         takeawayForm.classList.add('hidden');
         deliveryForm.classList.add('hidden');
 
-        // Munculkan sesuai pilihan
         if (type === 'dine_in') {
             dineinForm.classList.remove('hidden');
         } else if (type === 'takeaway') {
             takeawayForm.classList.remove('hidden');
         } else if (type === 'delivery') {
             deliveryForm.classList.remove('hidden');
+            
+            // Waktu form delivery muncul, paksa peta untuk me-refresh ukurannya
+            // (Karena peta suka 'error kotak abu-abu' kalau di-load saat display: hidden)
+            setTimeout(function() {
+                if(typeof map !== 'undefined') {
+                    map.invalidateSize();
+                }
+            }, 100);
         }
 
-        // Efek warna ikon
         document.querySelectorAll('input[name="order_type"]').forEach(radio => {
             const icon = radio.nextElementSibling.querySelector('i').parentElement;
             if (radio.checked) {
@@ -235,5 +256,71 @@
             }
         });
     }
+
+    // ==========================================
+    // 🌟 LOGIKA MAP LEAFLET
+    // ==========================================
+    var map, marker;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Koordinat default (Misal: Pusat Kota Surabaya)
+        var defaultLat = -7.2756;
+        var defaultLng = 112.7939;
+
+        // 2. Isi nilai awal ke input tersembunyi
+        document.getElementById('input_latitude').value = defaultLat;
+        document.getElementById('input_longitude').value = defaultLng;
+
+        // 3. Inisialisasi Peta
+        map = L.map('checkout-map').setView([defaultLat, defaultLng], 15);
+
+        // 4. Tambahkan layer OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // 5. Ikon Custom biar cakep
+        var pinIcon = L.divIcon({
+            html: '<div class="text-orange-500 drop-shadow-md text-4xl"><i class="bi bi-geo-alt-fill"></i></div>',
+            className: 'custom-pin',
+            iconSize: [30, 42],
+            iconAnchor: [15, 42]
+        });
+
+        // 6. Pasang Marker yang bisa di-drag (digeser)
+        marker = L.marker([defaultLat, defaultLng], {
+            icon: pinIcon,
+            draggable: true // BISA DIGESER!
+        }).addTo(map);
+
+        // 7. Event Listener: Kalau markernya selesai digeser, update koordinatnya!
+        marker.on('dragend', function(e) {
+            var position = marker.getLatLng();
+            
+            // Masukkan koordinat baru ke input hidden untuk di-submit
+            document.getElementById('input_latitude').value = position.lat;
+            document.getElementById('input_longitude').value = position.lng;
+            
+            // Tambahkan efek popup sesaat (Biar user tau koordinat tersimpan)
+            marker.bindPopup("Location pinned!").openPopup();
+            setTimeout(function() { marker.closePopup(); }, 1500);
+        });
+        
+        // Opsional: Lacak lokasi asli user (kalau dia allow location)
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                
+                // Pindahkan peta dan marker ke lokasi aslinya
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+                
+                // Update input hidden
+                document.getElementById('input_latitude').value = lat;
+                document.getElementById('input_longitude').value = lng;
+            });
+        }
+    });
 </script>
-@endsection

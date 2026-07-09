@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('admin.dashboard'); // Berubah di sini
                 
             case 'cashier':
-                return redirect()->route('cashier.transactions'); // Berubah di sini
+                return redirect()->route('cashier.transactions.index'); // Berubah di sini
                 
             case 'kitchen':
                 return redirect()->route('kitchen.board'); // Berubah di sini

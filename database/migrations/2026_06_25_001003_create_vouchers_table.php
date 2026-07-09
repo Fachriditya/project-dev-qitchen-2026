@@ -17,7 +17,9 @@ return new class extends Migration
             $table->text('voucher_description')->nullable();
             $table->enum('voucher_type', [
                 'percentage',
-                'fixed'
+                'fixed',
+                'bogo',
+                'free_delivery'
             ]);
             $table->decimal('voucher_value', 12, 2);
             $table->decimal('min_order', 12, 2)->nullable();

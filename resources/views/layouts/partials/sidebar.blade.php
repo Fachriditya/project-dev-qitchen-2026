@@ -74,31 +74,39 @@
 
         <!-- ================= MENU CASHIER ================= -->
         @if(Auth::user()->role === 'cashier')
-            <a href="#" class="flex items-center px-4 py-3 bg-orange-500 text-white rounded-xl font-bold transition">
+            <a href="{{ route('cashier.transactions.index') }}" 
+            class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('cashier.transactions.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-receipt mr-3 text-lg"></i> Transactions
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+
+            <a href="{{ route('cashier.manual-order.index') }}" 
+            class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('cashier.manual-order.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-pencil-square mr-3 text-lg"></i> Manual Order
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
+
+            <a href="{{ route('cashier.pickup.index')}}" 
+            class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('cashier.pickup.*') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-bag-check mr-3 text-lg"></i> Pickup Counter
             </a>
         @endif
 
         <!-- ================= MENU KITCHEN ================= -->
         @if(Auth::user()->role === 'kitchen')
-            <a href="#" class="flex items-center px-4 py-3 bg-orange-500 text-white rounded-xl font-bold transition">
+            <a href="{{ route('kitchen.board')}}" class="flex items-center px-4 py-3 bg-orange-500 text-white rounded-xl font-bold transition">
                 <i class="bi bi-display mr-3 text-lg"></i> Kitchen Board
             </a>
         @endif
 
         <!-- ================= MENU COURIER ================= -->
         @if(Auth::user()->role === 'courier')
-            <a href="#" class="flex items-center px-4 py-3 bg-orange-500 text-white rounded-xl font-bold transition">
+            <a href="{{ route('courier.offers') }}"
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('courier.offers') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
                 <i class="bi bi-box-seam mr-3 text-lg"></i> Delivery Offers
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl font-medium transition">
-                <i class="bi bi-truck mr-3 text-lg"></i> My Deliveries
+
+            <a href="{{ route('courier.my-deliveries') }}"
+               class="flex items-center px-4 py-3 rounded-xl transition {{ request()->routeIs('courier.my-deliveries') ? 'bg-orange-500 text-white font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium' }}">
+                <i class="bi bi-bicycle mr-3 text-lg"></i> My Deliveries
             </a>
         @endif
 

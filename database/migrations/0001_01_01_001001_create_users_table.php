@@ -27,7 +27,7 @@ return new class extends Migration
                 'courier',
                 'customer'
             ]);             
-            $table->string('referral_code', 15)->unique()->nullable();     
+            $table->string('referral_code', 50)->unique()->nullable();     
             $table->unsignedBigInteger('referred_by')->nullable(); 
 
             $table->rememberToken();

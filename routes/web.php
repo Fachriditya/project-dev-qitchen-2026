@@ -55,7 +55,7 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/forgot-password/verify', [ForgotPasswordController::class, 'verifyOtp'])->name('password.verify.post');
     
     Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
+    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('custom.password.update');
 });
 
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
@@ -91,15 +91,16 @@ Route::get('/track/{order_number}', [TrackingController::class, 'show'])->name('
 
 Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
-    Route::resource('admin/menus', AdminMenuController::class)->names('admin.menus');
-    Route::resource('admin/categories', CategoryController::class)->names('admin.categories');
-    Route::resource('admin/users', UserController::class)->names('admin.users');
-    Route::resource('admin/vouchers', VoucherController::class)->names('admin.vouchers');
-    Route::resource('admin/transactions', AdminTransaction::class)->only(['index', 'show'])->names('admin.transactions');
-    Route::resource('admin/deliveries', DeliveryController::class)->only(['index', 'show'])->names('admin.deliveries');
-    Route::get('admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
-    Route::get('reports/export-pdf', [ReportController::class, 'exportPdf'])->name('admin.reports.export-pdf');
+    Route::resource('menus', AdminMenuController::class)->names('admin.menus');
+    Route::resource('categories', CategoryController::class)->names('admin.categories');
+    Route::resource('users', UserController::class)->names('admin.users');
+    Route::resource('vouchers', VoucherController::class)->names('admin.vouchers');
+    Route::resource('transactions', AdminTransaction::class)->only(['index', 'show'])->names('admin.transactions');
+    Route::resource('deliveries', DeliveryController::class)->only(['index', 'show'])->names('admin.deliveries');
+
     Route::get('reports', [ReportController::class, 'index'])->name('admin.reports.index');
+        Route::get('reports/export-pdf', [ReportController::class, 'exportPdf'])->name('admin.reports.export-pdf');
+
     Route::resource('articles', ArticleController::class)->names('admin.articles');
     
 

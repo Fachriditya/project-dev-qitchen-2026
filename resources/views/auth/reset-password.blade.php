@@ -13,7 +13,7 @@
             OTP valid! Silakan masukkan password baru Anda yang kuat dan mudah diingat.
         </p>
 
-        <form action="{{ route('password.update') }}" method="POST">
+        <form action="{{{ route('custom.password.update') }}" method="POST">
             @csrf
             
             <div class="mb-5 text-left">

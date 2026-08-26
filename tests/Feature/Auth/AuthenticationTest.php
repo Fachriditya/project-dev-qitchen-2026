@@ -13,13 +13,12 @@ class AuthenticationTest extends TestCase
     public function test_login_screen_can_be_rendered(): void
     {
         $response = $this->get('/login');
-
         $response->assertStatus(200);
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'customer']);
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -27,7 +26,21 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // Customer redirects to home per AuthenticatedSessionController
+        $response->assertRedirect(route('home', absolute: false));
+    }
+
+    public function test_admin_redirects_to_admin_dashboard(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('admin.dashboard', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
@@ -50,5 +63,25 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         $response->assertRedirect('/');
+    }
+
+    public function test_role_based_redirects(): void
+    {
+        $cases = [
+            'cashier' => 'cashier.transactions.index',
+            'kitchen' => 'kitchen.board',
+            'courier' => 'courier.offers',
+        ];
+
+        foreach ($cases as $role => $route) {
+            $user = User::factory()->create(['role' => $role]);
+            $response = $this->post('/login', [
+                'email' => $user->email,
+                'password' => 'password',
+            ]);
+            $this->assertAuthenticated();
+            $response->assertRedirect(route($route, absolute: false));
+            $this->post('/logout');
+        }
     }
 }

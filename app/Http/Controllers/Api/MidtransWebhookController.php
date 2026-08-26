@@ -49,9 +49,9 @@ class MidtransWebhookController extends Controller
             // Update status tabel order
             $order->update(['order_status' => 'paid']);
             
-            // Update status tabel payment
+            // Update status tabel payment (enum: pending, success, failed, expired)
             Payment::where('order_id', $order->order_id ?? $order->id)
-                   ->update(['payment_status' => 'paid']);
+                   ->update(['payment_status' => 'success', 'paid_at' => now()]);
 
             Log::info("Webhook Success: Order " . $realOrderNumber . " verified and set to PAID.");
 

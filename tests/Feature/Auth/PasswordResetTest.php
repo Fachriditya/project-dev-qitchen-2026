@@ -3,9 +3,8 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -15,59 +14,76 @@ class PasswordResetTest extends TestCase
     public function test_reset_password_link_screen_can_be_rendered(): void
     {
         $response = $this->get('/forgot-password');
-
         $response->assertStatus(200);
     }
 
     public function test_reset_password_link_can_be_requested(): void
     {
-        Notification::fake();
-
+        Mail::fake();
         $user = User::factory()->create();
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $response = $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        $response->assertRedirect(route('password.verify', absolute: false));
+        $user->refresh();
+        $this->assertNotNull($user->otp);
     }
 
-    public function test_reset_password_screen_can_be_rendered(): void
+    public function test_reset_password_link_fails_for_unknown_email(): void
     {
-        Notification::fake();
-
-        $user = User::factory()->create();
-
-        $this->post('/forgot-password', ['email' => $user->email]);
-
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
-
-            $response->assertStatus(200);
-
-            return true;
-        });
+        $response = $this->post('/forgot-password', ['email' => 'unknown@example.com']);
+        $response->assertSessionHasErrors(['email']);
     }
 
-    public function test_password_can_be_reset_with_valid_token(): void
+    public function test_otp_verification_for_password_reset(): void
     {
-        Notification::fake();
-
+        Mail::fake();
         $user = User::factory()->create();
 
         $this->post('/forgot-password', ['email' => $user->email]);
+        $user->refresh();
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post('/reset-password', [
-                'token' => $notification->token,
-                'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
-            ]);
+        // Wrong OTP should fail
+        $response = $this->post('/forgot-password/verify', ['otp' => '000000']);
+        $response->assertSessionHasErrors(['otp']);
 
-            $response
-                ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login'));
+        // Correct OTP should pass
+        $response = $this->post('/forgot-password/verify', ['otp' => $user->otp]);
+        $response->assertRedirect(route('password.reset', absolute: false));
+    }
 
-            return true;
-        });
+    public function test_password_can_be_reset_via_otp_flow(): void
+    {
+        Mail::fake();
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+        $user->refresh();
+        $this->post('/forgot-password/verify', ['otp' => $user->otp]);
+
+        $response = $this->post('/reset-password', [
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ]);
+
+        $response->assertRedirect(route('login', absolute: false));
+        $user->refresh();
+        $this->assertNull($user->otp);
+    }
+
+    public function test_reset_password_requires_confirmation(): void
+    {
+        Mail::fake();
+        $user = User::factory()->create();
+        $this->post('/forgot-password', ['email' => $user->email]);
+        $user->refresh();
+        $this->post('/forgot-password/verify', ['otp' => $user->otp]);
+
+        $response = $this->post('/reset-password', [
+            'password' => 'new-password-123',
+            'password_confirmation' => 'different',
+        ]);
+
+        $response->assertSessionHasErrors(['password']);
     }
 }

@@ -260,7 +260,11 @@ class CheckoutController extends Controller
                 ], 
             ];
 
-            $snapToken = \Midtrans\Snap::getSnapToken($params);
+            if (app()->environment('testing')) {
+                $snapToken = 'TEST-SNAPSHOT-TOKEN-' . uniqid();
+            } else {
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+            }
 
             if ($activeVoucher) {
                 // 1. Tambah statistik penggunaan di master voucher

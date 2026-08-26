@@ -154,6 +154,11 @@ Route::middleware(['auth', 'isCourier'])->prefix('courier')->group(function () {
 // CUSTOMER ROUTING
 // ==========================================
 
+// Legacy Breeze compatibility: dashboard alias
+Route::get('/dashboard', function () {
+    return redirect()->route('home');
+})->middleware(['auth'])->name('dashboard');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');

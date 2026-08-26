@@ -3,56 +3,83 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_email_verification_screen_can_be_rendered(): void
+    public function test_email_verification_screen_requires_session(): void
     {
-        $user = User::factory()->unverified()->create();
+        // Without otp_email in session, should redirect to register
+        $response = $this->get('/verify-otp');
+        $response->assertRedirect(route('register', absolute: false));
+    }
 
-        $response = $this->actingAs($user)->get('/verify-email');
+    public function test_otp_verification_flow(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
 
+        // Register creates user with otp
+        $this->post('/register', [
+            'name' => 'OTP User',
+            'email' => 'otp@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $user = User::where('email', 'otp@example.com')->first();
+        $this->assertNotNull($user->otp);
+
+        // OTP screen can be rendered when session exists
+        $response = $this->get('/verify-otp');
         $response->assertStatus(200);
+
+        // Verify with correct OTP
+        $response = $this->post('/verify-otp', ['otp' => $user->otp]);
+        $response->assertRedirect(route('profile.index', absolute: false));
+        $this->assertAuthenticated();
+
+        $user->refresh();
+        $this->assertNotNull($user->email_verified_at);
+        $this->assertNull($user->otp);
     }
 
-    public function test_email_can_be_verified(): void
+    public function test_otp_verification_fails_with_wrong_code(): void
     {
-        $user = User::factory()->unverified()->create();
+        \Illuminate\Support\Facades\Mail::fake();
 
-        Event::fake();
+        $this->post('/register', [
+            'name' => 'OTP Fail User',
+            'email' => 'otpfail@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
 
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1($user->email)]
-        );
-
-        $response = $this->actingAs($user)->get($verificationUrl);
-
-        Event::assertDispatched(Verified::class);
-        $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+        $response = $this->post('/verify-otp', ['otp' => '000000']);
+        $response->assertSessionHasErrors(['otp']);
+        $this->assertGuest();
     }
 
-    public function test_email_is_not_verified_with_invalid_hash(): void
+    public function test_resend_otp_generates_new_code(): void
     {
-        $user = User::factory()->unverified()->create();
+        \Illuminate\Support\Facades\Mail::fake();
 
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1('wrong-email')]
-        );
+        $this->post('/register', [
+            'name' => 'Resend User',
+            'email' => 'resend@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
 
-        $this->actingAs($user)->get($verificationUrl);
+        $user = User::where('email', 'resend@example.com')->first();
+        $oldOtp = $user->otp;
 
-        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+        $response = $this->post('/resend-otp');
+        $response->assertSessionHas('resend_success');
+
+        $user->refresh();
+        $this->assertNotEquals($oldOtp, $user->otp);
     }
 }

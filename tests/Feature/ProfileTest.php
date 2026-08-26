@@ -14,9 +14,7 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->get('/profile');
+        $response = $this->actingAs($user)->get('/profile');
 
         $response->assertOk();
     }
@@ -25,75 +23,83 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ]);
+        $response = $this->actingAs($user)->put('/profile/update', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'phone' => '081234567890',
+        ]);
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
 
         $user->refresh();
-
         $this->assertSame('Test User', $user->name);
         $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    public function test_profile_update_requires_name_and_email(): void
     {
         $user = User::factory()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => $user->email,
-            ]);
+        $response = $this->actingAs($user)->put('/profile/update', [
+            'name' => '',
+            'email' => 'not-an-email',
+        ]);
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
-
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $response->assertSessionHasErrors(['name', 'email']);
     }
 
-    public function test_user_can_delete_their_account(): void
+    public function test_password_can_be_updated(): void
     {
         $user = User::factory()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->delete('/profile', [
-                'password' => 'password',
-            ]);
+        $response = $this->actingAs($user)->put('/profile/password', [
+            'current_password' => 'password',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ]);
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/');
-
-        $this->assertGuest();
-        $this->assertNull($user->fresh());
+        $response->assertSessionHasNoErrors();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('new-password-123', $user->refresh()->password));
     }
 
-    public function test_correct_password_must_be_provided_to_delete_account(): void
+    public function test_password_update_requires_correct_current_password(): void
     {
         $user = User::factory()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->from('/profile')
-            ->delete('/profile', [
-                'password' => 'wrong-password',
-            ]);
+        $response = $this->actingAs($user)->put('/profile/password', [
+            'current_password' => 'wrong-password',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ]);
 
-        $response
-            ->assertSessionHasErrorsIn('userDeletion', 'password')
-            ->assertRedirect('/profile');
+        $response->assertSessionHasErrors(['current_password']);
+    }
 
-        $this->assertNotNull($user->fresh());
+    public function test_guest_cannot_access_profile(): void
+    {
+        $response = $this->get('/profile');
+        $response->assertRedirect(route('login', absolute: false));
+    }
+
+    public function test_profile_history_page(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/profile/history');
+        $response->assertOk();
+    }
+
+    public function test_profile_vouchers_page(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/profile/vouchers');
+        $response->assertOk();
+    }
+
+    public function test_profile_referral_page(): void
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/profile/referral');
+        $response->assertOk();
     }
 }

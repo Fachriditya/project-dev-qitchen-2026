@@ -51,7 +51,6 @@
    - 6.5 Repository GitHub
    - 6.6 Dokumentasi Testing
 - [Daftar Pustaka](#daftar-pustaka)
-- [Lampiran](#lampiran)
 
 ---
 
@@ -226,7 +225,7 @@ Aktor utama pada sistem Qitchen meliputi:
 
 Masing-masing aktor memiliki akses dan fungsi yang berbeda sesuai kebutuhan operasional sistem.
 
-> **Catatan:** Diagram Use Case terdapat pada dokumen perancangan sistem (file gambar terpisah).
+
 
 ## 2.3 Kelas dan Karakteristik Pengguna
 
@@ -312,7 +311,7 @@ Karakteristik antarmuka pengguna pada sistem Qitchen meliputi:
 - Menampilkan pesan validasi dan error secara informatif kepada pengguna
 - Mendukung akses melalui browser modern tanpa memerlukan instalasi aplikasi tambahan
 
-Detail desain antarmuka pengguna dijelaskan lebih lanjut pada dokumen UI/UX Design Qitchen (file gambar terpisah).
+Detail desain antarmuka pengguna dijelaskan lebih lanjut pada dokumen UI/UX Design Qitchen.
 
 ### 3.1.1 Sitemap
 
@@ -327,7 +326,7 @@ Sitemap mencakup seluruh halaman yang dapat diakses oleh:
 - Courier
 - Admin
 
-> **Catatan:** Diagram sitemap terdapat pada dokumen perancangan sistem (file gambar terpisah).
+
 
 ### 3.1.2 User Flow
 
@@ -340,7 +339,7 @@ User Flow pada sistem Qitchen mencakup:
 - Courier Workflow
 - Admin Management Flow
 
-> **Catatan:** Diagram user flow terdapat pada dokumen perancangan sistem (file gambar terpisah).
+
 
 ### 3.1.3 Desain Navigasi Sistem
 
@@ -953,7 +952,7 @@ CDM mencakup entitas utama seperti:
 - Referrals
 - Articles
 
-> **Catatan:** Diagram CDM terdapat pada file `docs/Qitchen-CDM.png` (gambar terpisah).
+
 
 ### 6.1.2 Physical Data Model (PDM)
 
@@ -961,7 +960,7 @@ Physical Data Model (PDM) digunakan untuk menggambarkan struktur fisik database 
 
 PDM mencakup seluruh tabel yang digunakan pada database sistem Qitchen beserta relasi antar tabel.
 
-> **Catatan:** Diagram PDM terdapat pada file `docs/Qitchen-PDM.png` (gambar terpisah).
+
 
 ## 6.2 Kebutuhan Deployment Sistem
 
@@ -1056,173 +1055,6 @@ Digunakan untuk memastikan tampilan sistem dapat berjalan dengan baik pada berba
 11. OpenStreetMap Documentation. https://wiki.openstreetmap.org
 12. Laravel DomPDF Documentation. https://github.com/barryvdh/laravel-dompdf
 13. Dokumentasi perancangan sistem Qitchen
-
----
-
-# Lampiran
-
-Dokumen ini memiliki beberapa lampiran berupa diagram dan gambar desain yang disimpan sebagai file terpisah di direktori `docs/`. Berikut daftar lampiran:
-
-## Lampiran A — Sitemap
-
-> File: `docs/Qitchen-Sitemap.png`
-
-## Lampiran B — Use Case Diagram
-
-> File: `docs/Qitchen-UseCase.png`
-
-## Lampiran C — User Flow
-
-### Lampiran C.1 — Customer Flow
-> File: `docs/Qitchen-UserFlow/`
-
-### Lampiran C.2 — Cashier Flow
-> File: `docs/Qitchen-UserFlow/`
-
-### Lampiran C.3 — Kitchen Flow
-> File: `docs/Qitchen-UserFlow/`
-
-### Lampiran C.4 — Courier Flow
-> File: `docs/Qitchen-UserFlow/`
-
-### Lampiran C.5 — Admin Flow
-> File: `docs/Qitchen-UserFlow/`
-
-## Lampiran D — Low Fidelity Wireframe
-
-### Lampiran D.1 — Public Pages
-- D.1.1 Home Page
-- D.1.2 Articles Page
-- D.1.3 Article Detail Page
-- D.1.4 About Page
-- D.1.5 Contact Page
-- D.1.6 Login Page
-- D.1.7 Register Page
-
-### Lampiran D.2 — Guest Customer Pages
-- D.2.1 Menu Catalog
-- D.2.2 Menu Detail
-- D.2.3 Cart
-- D.2.4 Checkout
-- D.2.5 Payment
-- D.2.6 Tracking Order
-
-### Lampiran D.3 — Member Customer Pages
-- D.3.1 Menu Catalog
-- D.3.2 Menu Detail
-- D.3.3 Cart
-- D.3.4 Checkout
-- D.3.5 Payment
-- D.3.6 Tracking Order
-- D.3.7 Profile Page
-- D.3.8 Order History
-- D.3.9 Voucher Page
-- D.3.10 Referral Page
-
-### Lampiran D.4 — Cashier Pages
-- D.4.1 Transaction Monitoring
-- D.4.2 Manual Order Input
-- D.4.3 Manual Order Payment
-- D.4.4 Pickup Counter
-
-### Lampiran D.5 — Kitchen Board
-- D.5.1 Kitchen Board
-
-### Lampiran D.6 — Display Board (Fase 2)
-- D.6.1 Display Board
-
-### Lampiran D.7 — Courier Pages
-- D.7.1 Delivery Offers
-- D.7.2 My Deliveries
-- D.7.3 Delivery Detail
-
-### Lampiran D.8 — Admin Pages
-- D.8.1 Admin Dashboard
-- D.8.2 Menu Management
-- D.8.3 Category Management
-- D.8.4 User Management
-- D.8.5 Voucher Management
-- D.8.6 Transaction Monitoring
-- D.8.7 Delivery Monitoring
-- D.8.8 Reports Page
-- D.8.9 Article Management
-
-> File: `docs/Qitchen-LowFidelity/`
-
-## Lampiran E — High Fidelity Wireframe
-
-### Lampiran E.1 — Public Pages
-- E.1.1 Home Page
-- E.1.2 Articles Page
-- E.1.3 Article Detail Page
-- E.1.4 About Page
-- E.1.5 Contact Page
-- E.1.6 Login Page
-- E.1.7 Register Page
-
-### Lampiran E.2 — Guest Customer Pages
-- E.2.1 Menu Catalog
-- E.2.2 Menu Detail
-- E.2.3 Cart
-- E.2.4.1 Checkout - Delivery
-- E.2.4.2 Checkout - Takeaway
-- E.2.4.3 Checkout - Dine In
-- E.2.5 Payment
-- E.2.6 Tracking Order
-
-### Lampiran E.3 — Member Customer Pages
-- E.3.1 Menu Catalog
-- E.3.2 Menu Detail
-- E.3.3 Cart
-- E.3.4.1 Checkout - Delivery
-- E.3.4.2 Checkout - Takeaway
-- E.3.4.3 Checkout - Dine In
-- E.3.5 Payment
-- E.3.6 Tracking Order
-- E.3.7 Profile Page
-- E.3.8 Order History
-- E.3.9 Voucher Page
-- E.3.10 Referral Page
-
-### Lampiran E.4 — Cashier Pages
-- E.4.1 Transaction Monitoring
-- E.4.2 Manual Order Input
-- E.4.3 Manual Order Payment
-- E.4.4 Pickup Counter
-
-### Lampiran E.5 — Kitchen Board
-- E.5.1 Kitchen Board
-
-### Lampiran E.6 — Display Board (Fase 2)
-- E.6.1 Display Board
-
-### Lampiran E.7 — Courier Pages
-- E.7.1 Delivery Offers
-- E.7.2.1 My Deliveries - Active
-- E.7.2.2 My Deliveries - Accepted
-- E.7.2.3 My Deliveries - History
-- E.7.3 Delivery Detail
-
-### Lampiran E.8 — Admin Pages
-- E.8.1 Admin Dashboard
-- E.8.2 Menu Management
-- E.8.3 Category Management
-- E.8.4 User Management
-- E.8.5 Voucher Management
-- E.8.6 Transaction Monitoring
-- E.8.7 Delivery Monitoring
-- E.8.8 Reports Page
-- E.8.9 Article Management
-
-> File: `docs/Qitchen-HighFidelity/`
-
-## Lampiran F — Conceptual Data Model (CDM)
-
-> File: `docs/Qitchen-CDM.png`
-
-## Lampiran G — Physical Data Model (PDM)
-
-> File: `docs/Qitchen-PDM.png`
 
 ---
 

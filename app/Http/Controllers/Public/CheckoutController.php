@@ -60,7 +60,7 @@ class CheckoutController extends Controller
                     }
                     break;
                     
-                case 'delivery':
+                case 'free_delivery':
                     $discount = $serviceFee; // Gratis ongkir/layanan
                     break;
             }
@@ -192,7 +192,7 @@ class CheckoutController extends Controller
                     }
                     break;
                     
-                case 'delivery':
+                case 'free_delivery':
                     $discount = $serviceFee; 
                     break;
             }
@@ -211,6 +211,12 @@ class CheckoutController extends Controller
         $customerName = $customerName ?: (Auth::check() ? Auth::user()->name : 'Guest');
         $orderNotes = $request->input('order_notes');
 
+        // Ambil data delivery address dari form
+        $deliveryAddress = $request->input('delivery_address');
+        $deliveryPhone = $request->input('delivery_phone');
+        $latitude = $request->input('latitude');
+        $longitude = $request->input('longitude');
+
         $orderNumber = 'QTC-' . strtoupper(substr(uniqid(), -6));
 
         DB::beginTransaction();
@@ -227,9 +233,11 @@ class CheckoutController extends Controller
                 'order_notes' => "Name: $customerName | Notes: $orderNotes", 
             ]);
 
+            $orderId = $order->order_id ?? $order->id;
+
             foreach ($cart as $id => $item) {
                 \App\Models\OrderItem::create([
-                    'order_id' => $order->order_id ?? $order->id, 
+                    'order_id' => $orderId, 
                     'menu_id' => $id,
                     'quantity' => $item['quantity'],
                     'item_price' => $item['price'],
@@ -239,11 +247,25 @@ class CheckoutController extends Controller
             }
 
             $payment = \App\Models\Payment::create([
-                'order_id' => $order->order_id ?? $order->id,
+                'order_id' => $orderId,
                 'payment_amount' => $total,
                 'payment_method' => 'qris', 
                 'payment_status' => 'pending',
             ]);
+
+            // 🌟 FIX: Buat Delivery record jika order_type = delivery
+            if ($orderType === 'delivery') {
+                \App\Models\Delivery::create([
+                    'order_id' => $orderId,
+                    'courier_id' => null,
+                    'recipient_name' => $customerName,
+                    'recipient_phone' => $deliveryPhone ?? (Auth::check() ? Auth::user()->phone : null),
+                    'delivery_address' => $deliveryAddress ?? 'No address provided',
+                    'latitude' => $latitude ? floatval($latitude) : null,
+                    'longitude' => $longitude ? floatval($longitude) : null,
+                    'delivery_status' => 'waiting',
+                ]);
+            }
 
             $params = [
                 'transaction_details' => [
@@ -275,8 +297,7 @@ class CheckoutController extends Controller
 
                 // 2. HANGUSKAN VOUCHER DI DOMPET USER (Ubah is_used jadi true)
                 if (isset($activeVoucher['user_voucher_id'])) {
-                    // Gunakan nama kolom primary key dari UserVoucher milikmu (misal 'id' atau 'user_voucher_id')
-                    $userVoucherKey = 'user_voucher_id'; // Ganti jadi 'id' kalau primary key-mu id
+                    $userVoucherKey = 'user_voucher_id';
                     
                     \App\Models\UserVoucher::where($userVoucherKey, $activeVoucher['user_voucher_id'])
                         ->update(['is_used' => true]);

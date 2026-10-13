@@ -110,7 +110,29 @@ class DeliveryOfferController extends Controller
         return view('courier.map', compact('order'));
     }
 
-    // 4. Selesaikan Pengiriman
+    // 4. Update Posisi Kurir (FR-38)
+    public function updateLocation(Request $request, $id)
+    {
+        $request->validate([
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+        ]);
+
+        $order = Order::findOrFail($id);
+        
+        if ($order->delivery) {
+            $order->delivery->update([
+                'courier_latitude' => $request->latitude,
+                'courier_longitude' => $request->longitude,
+            ]);
+
+            return response()->json(['message' => 'Location updated']);
+        }
+
+        return response()->json(['message' => 'Delivery not found'], 404);
+    }
+
+    // 5. Selesaikan Pengiriman
     public function complete($id)
     {
         $order = Order::findOrFail($id);

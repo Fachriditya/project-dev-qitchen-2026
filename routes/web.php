@@ -147,6 +147,7 @@ Route::middleware(['auth', 'isCourier'])->prefix('courier')->group(function () {
     Route::get('/my-deliveries', [DeliveryOfferController::class, 'myDeliveries'])->name('courier.my-deliveries');
     
     Route::get('/map/{id}', [DeliveryOfferController::class, 'map'])->name('courier.map');
+    Route::post('/map/{id}/update-location', [DeliveryOfferController::class, 'updateLocation'])->name('courier.update-location');
     Route::post('/map/{id}/complete', [DeliveryOfferController::class, 'complete'])->name('courier.complete');
 });
 

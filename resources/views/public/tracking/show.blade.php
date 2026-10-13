@@ -150,8 +150,11 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inisialisasi Peta (Koordinat Titik Tengah)
-        var map = L.map('osm-map').setView([-7.2756, 112.7939], 14); 
+        var destLat = {{ $order->delivery->latitude ?? -7.2756 }};
+        var destLng = {{ $order->delivery->longitude ?? 112.7939 }};
+
+        // Inisialisasi Peta (Koordinat dari data delivery)
+        var map = L.map('osm-map').setView([destLat, destLng], 14); 
 
         // Gunakan layer gratis dari OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -159,9 +162,34 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Tambahkan Marker Animasi untuk Lokasi Pengiriman
-        var marker = L.marker([-7.2756, 112.7939]).addTo(map);
+        // Ikon Restaurant
+        var restIcon = L.divIcon({
+            html: '<div style="background:#1a2332;color:white;padding:4px 8px;border-radius:10px;font-size:11px;font-weight:bold;white-space:nowrap;"><i class="bi bi-shop"></i> Qitchen</div>',
+            className: '',
+            iconSize: [70, 26],
+            iconAnchor: [35, 13]
+        });
+
+        // Ikon Destination
+        var destIcon = L.divIcon({
+            html: '<div style="background:#f97316;color:white;padding:4px 8px;border-radius:10px;font-size:11px;font-weight:bold;white-space:nowrap;"><i class="bi bi-geo-alt-fill"></i> Destination</div>',
+            className: '',
+            iconSize: [80, 26],
+            iconAnchor: [40, 13]
+        });
+
+        // Marker Restaurant (static location)
+        L.marker([-7.2756, 112.7939], { icon: restIcon }).addTo(map).bindPopup('<b>Qitchen Restaurant</b>');
+
+        // Marker Destination (dynamic from delivery data)
+        var marker = L.marker([destLat, destLng], { icon: destIcon }).addTo(map);
         marker.bindPopup("<b>Delivery Destination</b><br>Pesanan menuju ke lokasi ini.").openPopup();
+
+        // Route line
+        L.polyline([
+            [-7.2756, 112.7939],
+            [destLat, destLng]
+        ], { color: '#f97316', weight: 3, opacity: 0.6, dashArray: '10, 10' }).addTo(map);
     });
 </script>
 @endif

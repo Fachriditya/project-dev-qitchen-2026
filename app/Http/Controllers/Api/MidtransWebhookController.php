@@ -77,7 +77,7 @@ class MidtransWebhookController extends Controller
                     if ($paidOrdersCount == 1) {
                         
                         // Cek 3: Cari Master Voucher khusus Referral
-                        $masterVoucher = Voucher::where('voucher_code', 'REF-BONUS')
+                        $masterVoucher = Voucher::where('voucher_code', 'REF-REWARD-2026')
                                                 ->where('is_active', true)
                                                 ->first();
 
@@ -89,7 +89,15 @@ class MidtransWebhookController extends Controller
                                 'is_used' => false
                             ]);
                             
-                            Log::info("Referral Reward: Voucher REF-BONUS diberikan ke User ID " . $customer->referred_by);
+                            // Simpan catatan referral reward
+                            \App\Models\Referral::create([
+                                'referrer_id' => $customer->referred_by,
+                                'referred_user_id' => $order->user_id,
+                                'voucher_id' => $masterVoucher->voucher_id ?? $masterVoucher->id,
+                                'rewarded_at' => now(),
+                            ]);
+                            
+                            Log::info("Referral Reward: Voucher REF-REWARD-2026 diberikan ke User ID " . $customer->referred_by);
                         }
                     }
                 }

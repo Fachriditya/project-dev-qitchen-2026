@@ -45,7 +45,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8', // Password wajib saat create
             'phone' => 'nullable|string|max:20',
-            'role' => 'required|in:super_admin,admin,customer,cashier,kitchen,courier',
+            'role' => 'required|in:admin,cashier,kitchen,courier,customer',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -84,7 +84,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->user_id . ',user_id',
             'password' => 'nullable|string|min:8', // Password opsional saat edit
             'phone' => 'nullable|string|max:20',
-            'role' => 'required|in:super_admin,admin,customer,cashier,kitchen,courier',
+            'role' => 'required|in:admin,cashier,kitchen,courier,customer',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 

@@ -57,9 +57,8 @@ class Order extends Model
         // Event 'updated' menyala tiap kali ada perubahan data pada order yang sudah ada di database
         static::updated(function ($order) {
             
-            // 1. Cek apakah yang diubah itu kolom status, dan status barunya adalah 'completed'
-            // (Sesuaikan kata 'completed' dengan status sukses yang kamu pakai di aplikasimu, misal 'success' atau 'delivered')
-            if ($order->isDirty('status') && $order->status === 'completed') {
+            // 1. Cek apakah yang diubah itu kolom order_status, dan status barunya adalah 'completed'
+            if ($order->isDirty('order_status') && $order->order_status === 'completed') {
                 
                 $customer = $order->user;
 
@@ -67,8 +66,8 @@ class Order extends Model
                 if ($customer && $customer->referred_by) {
                     
                     // 3. PENCEGAHAN SPAM: Pastikan ini benar-benar pesanan sukses PERTAMA customer tersebut
-                    $completedOrdersCount = \App\Models\Order::where('user_id', $customer->user_id) // Sesuaikan nama kolom ID-mu
-                                                ->where('status', 'completed')
+                    $completedOrdersCount = \App\Models\Order::where('user_id', $customer->user_id)
+                                                ->where('order_status', 'completed')
                                                 ->count();
                     
                     // Karena status pesanan ini baru saja jadi completed, maka totalnya di DB harus pas 1
@@ -87,10 +86,10 @@ class Order extends Model
                             // 6. Suntikkan ke dompet Pengajak!
                             if ($referralVoucher) {
                                 \App\Models\UserVoucher::create([
-                                    'user_id' => $referrer->user_id, // Sesuaikan kolom ID (id atau user_id)
+                                    'user_id' => $referrer->user_id,
                                     'voucher_id' => $referralVoucher->voucher_id,
                                     'is_used' => false,
-                                    'expired_at' => \Carbon\Carbon::now()->addMonths(1) // Hangus dalam 1 bulan
+                                    'expired_at' => \Carbon\Carbon::now()->addMonths(1)
                                 ]);
                                 
                                 $referralVoucher->increment('issued_count');
